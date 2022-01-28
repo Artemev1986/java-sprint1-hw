@@ -10,14 +10,6 @@ public class Main {
         YearlyReport yearlyReport = new YearlyReport();
         Comparer comparer = new Comparer();
 
-      //  yearlyReport.getProfits(data);
-      //  yearlyReport.getAverageIncome(data);
-      //  yearlyReport.getAverageExpense(data);
-
-      //  System.out.println(yearlyReport.profits[0]+" "+yearlyReport.profits[1]+" "+yearlyReport.profits[2]);
-      //  System.out.println(yearlyReport.averageIncome);
-       // System.out.println(yearlyReport.averageExpense);
-
         boolean isReadDataM = false;
         boolean isReadDataY = false;
 
@@ -49,12 +41,12 @@ public class Main {
                         monthlyReport.getSumIncomes(data);
                         monthlyReport.getSumExpenses(data);
                         yearlyReport.sepIncomesExpenses(data);
-                        comparer.getMistakes(monthlyReport,yearlyReport);
+                        comparer.getMistakes(data);
 
-                        for (int i=0; i<monthlyReport.month.length; i++) {
-                            if (comparer.mistakes[i]) {
+                        for (int i=0; i<data.monthNames.length; i++) {
+                            if (data.mistakes[i]) {
                                 System.out.println();
-                                System.out.println("Обнаружена ошибка в месяце \"" + monthlyReport.month[i]+"\"");
+                                System.out.println("Обнаружена ошибка в месяце \"" + data.monthNames[i]+"\"");
                             }
                         }
                         System.out.println();
@@ -83,11 +75,11 @@ public class Main {
                     if (isReadDataM){
                         monthlyReport.getMaxIncomes(data);
                         monthlyReport.getMaxExpenses(data);
-                        for (int i=0; i<monthlyReport.month.length; i++) {
+                        for (int i=0; i<data.monthNames.length; i++) {
                             System.out.println();
-                            System.out.println("Отчёт за " + monthlyReport.month[i]);
-                            System.out.println("Самый прибыльный товар: " + monthlyReport.itemMaxIncomes[i] + "; сумма = " + monthlyReport.maxIncomes[i]);
-                            System.out.println("Самая большая трата: " + monthlyReport.itemMaxExpenses[i] + "; сумма = " + monthlyReport.maxExpenses[i]);
+                            System.out.println("Отчёт за " + data.monthNames[i]);
+                            System.out.println("Самый прибыльный товар: " + data.itemMaxIncomes[i] + "; сумма = " + data.maxIncomes[i]);
+                            System.out.println("Самая большая трата: " + data.itemMaxExpenses[i] + "; сумма = " + data.maxExpenses[i]);
                         }
                         System.out.println();
                     }else {
@@ -104,11 +96,11 @@ public class Main {
                         yearlyReport.getAverageExpense(data);
                         System.out.println();
                         System.out.println("Отчёт за 2021г");
-                        for (int i=0; i<monthlyReport.month.length; i++) {
-                            System.out.println("Прибыль за " + monthlyReport.month[i] + ": " + yearlyReport.profits[i]);
+                        for (int i=0; i<data.monthNames.length; i++) {
+                            System.out.println("Прибыль за " + data.monthNames[i] + ": " + data.profits[i]);
                         }
-                        System.out.println("Средний расход за все месяцы в году: " + yearlyReport.averageExpense);
-                        System.out.println("Средний доход за все месяцы в году: " + yearlyReport.averageIncome);
+                        System.out.println("Средний расход за все месяцы в году: " + data.averageExpense);
+                        System.out.println("Средний доход за все месяцы в году: " + data.averageIncome);
                         System.out.println();
                     }else {
                         System.out.println();

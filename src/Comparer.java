@@ -1,12 +1,8 @@
 public class Comparer {
-    static boolean[] mistakes;
-    public Comparer(){
-        mistakes = new boolean[3];
-    }
 
-    public void getMistakes(MonthlyReport monthlyReport, YearlyReport yearlyReport){
+    public void getMistakes(Data data){
         for (int i=0;i<3;i++)
-           mistakes[i] = monthlyReport.sumExpenses[i] != yearlyReport.expenses[i] ||
-                   monthlyReport.sumIncomes[i] != yearlyReport.incomes[i];
+           data.mistakes[i] = data.sumExpenses[i] != data.expenses[i] ||
+                   data.sumIncomes[i] != data.incomes[i];
     }
 }
