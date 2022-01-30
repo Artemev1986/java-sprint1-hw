@@ -1,17 +1,25 @@
+//Класс отвечает за считывание данных из файлов
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.io.IOException;
 public class Reader {
 
-    public boolean readDataM(Data data){
-        Path[] filePath = new Path[3];
-        for (int i=0; i<filePath.length; i++) {
-            filePath[i] = Paths.get("C:/", "Users", "Artemev1986",
-                    "dev", "java-sprint1-hw", "resources", "m.20210" + (i + 1) + ".csv");
-            try {
+    //Получение пути в папку resources
+    public Path getResourcesPath(){
+        Path filePath = Path.of(System.getProperty("user.dir"));
+        for (int i=0;i<3;i++)
+            filePath = Path.of(filePath.toString()).getParent();
+        return  Paths.get(filePath.toString(),"resources");
+    }
 
-                String fileContents = Files.readString(filePath[i]);
+    //Считывание месячных отчётов
+    public boolean readDataM(Data data){
+        for (int i=0; i<3; i++) {
+            Path filePath = Paths.get(getResourcesPath().toString(), "m.20210" + (i + 1) + ".csv");
+            try {
+                String fileContents = Files.readString(filePath);
                 String[] lines = fileContents.split("\\n");
                 for (int j = 1; j < lines.length; j++) {
                     String[] lineContents = lines[j].split(",");
@@ -28,11 +36,10 @@ public class Reader {
         return true;
     }
 
+    //Считывание годового отчёта
     public boolean readDataY(Data data){
-        Path filePath = Paths.get("C:/", "Users", "Artemev1986",
-                    "dev", "java-sprint1-hw", "resources", "y.2021.csv");
+        Path filePath = Paths.get(getResourcesPath().toString(),"y.2021.csv");
             try {
-
                 String fileContents = Files.readString(filePath);
                 String[] lines = fileContents.split("\\n");
                 for (int j = 1; j < lines.length; j++) {

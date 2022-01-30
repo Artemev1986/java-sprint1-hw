@@ -1,6 +1,8 @@
+//Класс отвечает за формирование месяных отчётов
+
 public class MonthlyReport {
 
-
+//Получение суммы дохода за месяц
     public void getSumIncomes(Data data){
         for (int i=0; i<data.sumIncomes.length; i++) {
            int sum = 0;
@@ -13,6 +15,7 @@ public class MonthlyReport {
         }
     }
 
+    //Получение суммы затрат за месяц
     public void getSumExpenses(Data data){
         for (int i=0; i<data.sumExpenses.length; i++) {
             int sum = 0;
@@ -25,6 +28,7 @@ public class MonthlyReport {
         }
     }
 
+    //Нахождение максимального дохода и наименование соответствующего товара в месяце
     public void getMaxIncomes(Data data){
         for (int i = 0; i < data.maxIncomes.length; i++){
             int maxIncome = 0;
@@ -43,6 +47,7 @@ public class MonthlyReport {
         }
     }
 
+    //Нахождение максимальной траты и наименование соответствующего товара в месяце
     public void getMaxExpenses(Data data){
         for (int i = 0; i < data.maxExpenses.length; i++){
             int maxExpense = 0;

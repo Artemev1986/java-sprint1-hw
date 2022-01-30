@@ -1,29 +1,31 @@
+// класс Data отвечает за хранение данных
+
 import java.util.ArrayList;
 
 public class Data{
-    ArrayList<String>[] monthItems;
-    ArrayList<Boolean>[] isMonthExpenses;
-    ArrayList<Integer>[] monthQuantity;
-    ArrayList<Integer>[] monthPrice;
-    ArrayList<Integer> month;
-    ArrayList<Integer> amount;
-    ArrayList<Boolean> isExpenses;
+    ArrayList<String>[] monthItems; // список товаров (за все месяцы) из месячных отчётов
+    ArrayList<Boolean>[] isMonthExpenses; // список меток, определяющих трату или доход (за все месяцы) из месячных отчётов
+    ArrayList<Integer>[] monthQuantity; // список количество товаров или услуг (за все месяцы) из месячных отчётов
+    ArrayList<Integer>[] monthPrice; // список цен за единицу товара или услуги (за все месяцы) из месячных отчётов
+    ArrayList<Integer> month; // список номеров месяца из годового отчета
+    ArrayList<Integer> amount; // список сумм товаров или услуг за месяц из годового отчёта
+    ArrayList<Boolean> isExpenses; // список меток, определяющих трату или доход из годового отчёта
 
-    int[] sumIncomes;
-    int[] sumExpenses;
-    int[] maxIncomes;
-    String[] itemMaxIncomes;
-    int[] maxExpenses;
-    String[] itemMaxExpenses;
-    String[] monthNames;
+    int[] sumIncomes; // массив сумм дохода за месяц
+    int[] sumExpenses; // массив сумм трат за месяц
+    int[] maxIncomes; // массив доходов за самый выгодный товар или услугу в месяце
+    String[] itemMaxIncomes; // массив самых доходных товаров или услуг в месяце
+    int[] maxExpenses; // массив трат за самый затратный товар или услугу в месяце
+    String[] itemMaxExpenses; // массив самых затратный товар или услугу в месяце
+    String[] monthNames; // массив названий месяцев
 
-    int[] profits;
-    int averageIncome;
-    int averageExpense;
-    int[] incomes;
-    int[] expenses;
+    int[] profits; // массив прибыли за каждый месяц
+    int averageIncome; // массив среднего дохода за каждый месяц
+    int averageExpense; // массив средних затрат за каждый месяц
+    int[] incomes; // массив доходов за каждый месяц
+    int[] expenses; // массив затрат за каждый месяц
 
-    boolean[] mistakes;
+    boolean[] mistakes; // массив ошибок (при сверке отчётов)
 
     public Data(){
         monthItems = new ArrayList[3];

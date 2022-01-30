@@ -1,3 +1,4 @@
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
@@ -15,8 +16,15 @@ public class Main {
 
         while (true) {
             printMenu();
+            int command = 0;
 
-            int command = scanner.nextInt();
+            try{
+                command = scanner.nextInt();
+            }catch (InputMismatchException e) {
+                command = 6;
+                scanner.next();
+            }
+
             switch (command) {
                 case 0:
                     return;
@@ -108,6 +116,11 @@ public class Main {
                         System.out.println("Считайте годовой отчёт затем повторите операцию");
                         System.out.println();
                     }
+                    break;
+                case 6:
+                    System.out.println();
+                    System.out.println("Введено значение в неправильном формате");
+                    System.out.println();
                     break;
                 default:
                     System.out.println();
