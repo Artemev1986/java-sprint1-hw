@@ -87,7 +87,7 @@ public class Processing {
     }
 
     //Вывод данных
-    public boolean printReports(int command,MonthlyReport monthlyReport,YearlyReport yearlyReport){
+    public boolean execCommands(int command,MonthlyReport monthlyReport,YearlyReport yearlyReport){
         boolean out = false;
         switch (command) {
             case 0:

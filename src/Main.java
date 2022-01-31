@@ -19,7 +19,7 @@ public class Main {
                 command = 6;
                 scanner.next();
             }
-            if(processing.printReports(command,monthlyReport,yearlyReport))
+            if(processing.execCommands(command,monthlyReport,yearlyReport)) //Проверка на команду "0"
                 return;
         }
     }
