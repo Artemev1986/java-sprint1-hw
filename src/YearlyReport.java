@@ -1,51 +1,75 @@
+import java.util.ArrayList;
+
 //Класс отвечает за формирование годового отчёта
 public class YearlyReport {
+    ArrayList<Integer> month; // список номеров месяца из годового отчета
+    ArrayList<Integer> amount; // список сумм товаров или услуг за месяц из годового отчёта
+    ArrayList<Boolean> isExpenses; // список меток, определяющих трату или доход из годового отчёта
+
+    int[] profits; // массив прибыли за каждый месяц
+    int averageIncome; // массив среднего дохода за каждый месяц
+    int averageExpense; // массив средних затрат за каждый месяц
+    int[] incomes; // массив доходов за каждый месяц
+    int[] expenses; // массив затрат за каждый месяц
+
+    public  YearlyReport(){
+        month = new ArrayList<>();
+        amount = new ArrayList<>();
+        isExpenses = new ArrayList<>();
+
+        profits = new int[3];
+        incomes = new int[3];
+        expenses = new int[3];
+        averageIncome = 0;
+        averageExpense = 0;
+    }
+
 
 //Нахождение затрат и доходов из годового отчёта
-    public void sepIncomesExpenses(Data data){
-        for (int i = 0; i < data.month.size(); i++){
-            if (data.isExpenses.get(i))
-                data.expenses[data.month.get(i)-1] = data.amount.get(i);
+    public void sepIncomesExpenses(){
+        for (int i = 0; i < month.size(); i++){
+            if (isExpenses.get(i))
+                expenses[month.get(i)-1] = amount.get(i);
             else
-                data.incomes[data.month.get(i)-1] = data.amount.get(i);
+                incomes[month.get(i)-1] = amount.get(i);
         }
     }
 
     //Нахождение прибыли за каждый месяц
-    public void getProfits(Data data){
+    public void getProfits(){
         int[] profits_ = new int[3];
-        for (int i = 0; i < data.month.size(); i++){
-            if (data.isExpenses.get(i))
-                profits_[data.month.get(i)-1] -= data.amount.get(i);
+        for (int i = 0; i < month.size(); i++){
+            if (isExpenses.get(i))
+                profits_[month.get(i)-1] -= amount.get(i);
             else
-                profits_[data.month.get(i)-1] += data.amount.get(i);
+                profits_[month.get(i)-1] += amount.get(i);
         }
-        data.profits = profits_;
+        profits = profits_;
     }
 
     //Получение среднего значения дохода за год
-    public void getAverageIncome(Data data){
+    public void getAverageIncome(){
         int averageSum = 0;
         int count=0;
-        for (int i = 0; i < data.month.size(); i++){
-            if (!data.isExpenses.get(i)) {
-                averageSum += data.amount.get(i);
+        for (int i = 0; i < month.size(); i++){
+            if (!isExpenses.get(i)) {
+                averageSum += amount.get(i);
                 count++;
             }
         }
-        data.averageIncome = averageSum / count;
+        averageIncome = averageSum / count;
     }
 
     //Получение среднего значения затрат за год
-    public void getAverageExpense(Data data){
+    public void getAverageExpense(){
         int averageSum = 0;
         int count=0;
-        for (int i = 0; i < data.month.size(); i++){
-            if (data.isExpenses.get(i)) {
-                averageSum += data.amount.get(i);
+        for (int i = 0; i < month.size(); i++){
+            if (isExpenses.get(i)) {
+                averageSum += amount.get(i);
                 count++;
             }
         }
-        data.averageExpense = averageSum / count;
+        averageExpense = averageSum / count;
     }
 }
