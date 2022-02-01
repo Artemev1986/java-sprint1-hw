@@ -5,13 +5,10 @@ import java.nio.file.Paths;
 
 //Класс логики обработки данных
 public class Processing {
-    boolean isReadDataM;
-    boolean isReadDataY;
-
-    public Processing(){
-        isReadDataM = false;
-        isReadDataY = false;
-    }
+    MonthlyReport monthlyReport = new MonthlyReport();
+    YearlyReport yearlyReport = new YearlyReport();
+    boolean isReadDataM = false;
+    boolean isReadDataY = false;
 
     //Получение пути в папку resources
     public Path getResourcesPath(){
@@ -23,21 +20,24 @@ public class Processing {
 
     //Считывание месячных отчётов
     public boolean readDataM(MonthlyReport monthlyReport){
+
         for (int i=0; i<3; i++) {
-            monthlyReport.monthItems[i].clear();
-            monthlyReport.isMonthExpenses[i].clear();
-            monthlyReport.monthQuantity[i].clear();
-            monthlyReport.monthPrice[i].clear();
+            monthlyReport.incomes[i].clear();
+            monthlyReport.expenses[i].clear();
             Path filePath = Paths.get(getResourcesPath().toString(), "m.20210" + (i + 1) + ".csv");
             try {
                 String fileContents = Files.readString(filePath);
                 String[] lines = fileContents.split("\\n");
                 for (int j = 1; j < lines.length; j++) {
                     String[] lineContents = lines[j].split(",");
-                    monthlyReport.monthItems[i].add(lineContents[0]);
-                    monthlyReport.isMonthExpenses[i].add(Boolean.parseBoolean(lineContents[1]));
-                    monthlyReport.monthQuantity[i].add(Integer.parseInt(lineContents[2]));
-                    monthlyReport.monthPrice[i].add(Integer.parseInt(lineContents[3].trim()));
+                    MonthlyReport.ReportM reportM = new MonthlyReport.ReportM();
+                    reportM.item = lineContents[0];
+                    reportM.quantity = Integer.parseInt(lineContents[2]);
+                    reportM.price = Integer.parseInt(lineContents[3].trim());
+                    if (Boolean.parseBoolean(lineContents[1]))
+                        monthlyReport.expenses[i].add(reportM);
+                    else
+                        monthlyReport.incomes[i].add(reportM);
                 }
             } catch (IOException e) {
                 System.out.println("Невозможно прочитать файл с месячным отчётом. Возможно, файл не находится в нужной директории.");
@@ -49,18 +49,18 @@ public class Processing {
 
     //Считывание годового отчёта
     public boolean readDataY(YearlyReport yearlyReport){
-        yearlyReport.month.clear();
-        yearlyReport.amount.clear();
-        yearlyReport.isExpenses.clear();
+        yearlyReport.reportY.income.clear();
+        yearlyReport.reportY.expense.clear();
         Path filePath = Paths.get(getResourcesPath().toString(),"y.2021.csv");
         try {
             String fileContents = Files.readString(filePath);
             String[] lines = fileContents.split("\\n");
             for (int j = 1; j < lines.length; j++) {
                 String[] lineContents = lines[j].split(",");
-                yearlyReport.month.add(Integer.parseInt(lineContents[0]));
-                yearlyReport.amount.add(Integer.parseInt(lineContents[1]));
-                yearlyReport.isExpenses.add(Boolean.parseBoolean(lineContents[2].trim()));
+                if (Boolean.parseBoolean(lineContents[2].trim()))
+                    yearlyReport.reportY.expense.add(Integer.parseInt(lineContents[0]) - 1 , Integer.parseInt(lineContents[1]));
+                else
+                    yearlyReport.reportY.income.add(Integer.parseInt(lineContents[0]) - 1 , Integer.parseInt(lineContents[1]));
             }
         } catch (IOException e) {
             System.out.println("Невозможно прочитать файл с годовым отчётом. Возможно, файл не находится в нужной директории.");
@@ -70,11 +70,101 @@ public class Processing {
     }
 
     //Нахождение несоответствий суммы затрат и доходов между годовым и месяными отчётами
-    public void getMistakes(MonthlyReport monthlyReport, YearlyReport yearlyReport){
-        for (int i=0;i<3;i++)
-            monthlyReport.mistakes[i] = monthlyReport.sumExpenses[i] != yearlyReport.expenses[i] ||
-                    monthlyReport.sumIncomes[i] != yearlyReport.incomes[i];
+    public boolean[] getMistakes(MonthlyReport monthlyReport, YearlyReport yearlyReport){
+        boolean[] mistakes = new boolean[3];
+        for (int i=0;i<3;i++) {
+            mistakes[i] = monthlyReport.getSumExpenses()[i] != yearlyReport.reportY.expense.get(i) ||
+                    monthlyReport.getSumIncomes()[i] != yearlyReport.reportY.income.get(i);
+        }
+        return mistakes;
     }
+
+    //Печать результата считывания месячных отчётов
+    public void printReadReportM(){
+        isReadDataM = readDataM(monthlyReport);
+        if (isReadDataM){
+            System.out.println();
+            System.out.println("Все месячные отчёты успешно считаны");
+            System.out.println();
+        }
+    }
+
+    //Печать результата считывания годового отчёта
+    public void printReadReportY(){
+        isReadDataY = readDataY(yearlyReport);
+        if (isReadDataY) {
+            System.out.println();
+            System.out.println("Годовой отчёт успешно считан");
+            System.out.println();
+        }
+    }
+
+    //Печать результата сравнения месячных и годового отчётов
+    public void printCompareReports(){
+        if (isReadDataM && isReadDataY){
+            for (int i=0; i<monthlyReport.monthNames.length; i++) {
+                if (getMistakes(monthlyReport,yearlyReport)[i]) {
+                    System.out.println();
+                    System.out.println("Обнаружена ошибка в месяце \"" + monthlyReport.monthNames[i]+"\"");
+                }
+            }
+            System.out.println();
+            System.out.println("Операция выполнена успешно");
+            System.out.println();
+        }else if (!(isReadDataM || isReadDataY)){
+            System.out.println();
+            System.out.println("Годовой и месячные отчёты не считаны. Выполнение операции не возможно");
+            System.out.println("Считайте отчёты затем повторите операцию");
+            System.out.println();
+        }else if (!isReadDataM) {
+            System.out.println();
+            System.out.println("Месячные отчёты не считаны. Выполнение операции не возможно");
+            System.out.println("Считайте месячные отчёты затем повторите операцию");
+            System.out.println();
+        }
+        else {
+            System.out.println();
+            System.out.println("Годовой отчёт не считан. Выполнение операции не возможно");
+            System.out.println("Считайте годовой отчёт затем повторите операцию");
+            System.out.println();
+        }
+    }
+
+    //Печать результата обработки месячных отчётов
+    public void printMonthReports(){
+        if (isReadDataM){
+            for (int i=0; i<monthlyReport.monthNames.length; i++) {
+                System.out.println();
+                System.out.println("Отчёт за " + monthlyReport.monthNames[i]);
+                System.out.println("Самый прибыльный товар: " + monthlyReport.getMaxIncomes()[i].item + "; сумма = " + monthlyReport.getMaxIncomes()[i].max);
+                System.out.println("Самая большая трата: " + monthlyReport.getMaxExpenses()[i].item + "; сумма = " + monthlyReport.getMaxExpenses()[i].max);
+            }
+            System.out.println();
+        }else {
+            System.out.println();
+            System.out.println("Месячные отчёты не считаны. Выполнение операции не возможно");
+            System.out.println("Считайте месячные отчёты затем повторите операцию");
+            System.out.println();
+        }
+    }
+
+    //Печать результата обработки годового отчёта
+    public void printYearReport(){
+        System.out.println();
+        if  (isReadDataY){
+            System.out.println("Отчёт за 2021г");
+            for (int i=0; i<monthlyReport.monthNames.length; i++) {
+                System.out.println("Прибыль за " + monthlyReport.monthNames[i] + ": " + yearlyReport.getProfits()[i]);
+            }
+            System.out.println("Средний расход за все месяцы в году: " + yearlyReport.getAverageExpense());
+            System.out.println("Средний доход за все месяцы в году: " + yearlyReport.getAverageIncome());
+        }else {
+            System.out.println("Годовой отчёт не считан. Выполнение операции не возможно");
+            System.out.println("Считайте годовой отчёт затем повторите операцию");
+        }
+        System.out.println();
+    }
+
     //Печать меню
     public void printMenu() {
         System.out.println("Какую операцию вы хотите выполнить? ");
@@ -84,115 +174,5 @@ public class Processing {
         System.out.println("4 - Вывести информацию о всех месячных отчётах");
         System.out.println("5 - Вывести информацию о годовом отчёте");
         System.out.println("0 - Выход");
-    }
-
-    //Вывод данных
-    public boolean execCommands(int command,MonthlyReport monthlyReport,YearlyReport yearlyReport){
-        boolean out = false;
-        switch (command) {
-            case 0:
-                out = true;
-                break;
-            case 1:
-                isReadDataM = readDataM(monthlyReport);
-                if (isReadDataM){
-                    System.out.println();
-                    System.out.println("Все месячные отчёты успешно считаны");
-                    System.out.println();
-                }
-                break;
-            case 2:
-                isReadDataY = readDataY(yearlyReport);
-                if (isReadDataY) {
-                    System.out.println();
-                    System.out.println("Годовой отчёт успешно считан");
-                    System.out.println();
-                }
-                break;
-            case 3:
-                if (isReadDataM && isReadDataY){
-                    monthlyReport.getSumIncomes();
-                    monthlyReport.getSumExpenses();
-                    yearlyReport.sepIncomesExpenses();
-                    getMistakes(monthlyReport,yearlyReport);
-
-                    for (int i=0; i<monthlyReport.monthNames.length; i++) {
-                        if (monthlyReport.mistakes[i]) {
-                            System.out.println();
-                            System.out.println("Обнаружена ошибка в месяце \"" + monthlyReport.monthNames[i]+"\"");
-                        }
-                    }
-                    System.out.println();
-                    System.out.println("Операция выполнена успешно");
-                    System.out.println();
-                }else if (!(isReadDataM || isReadDataY)){
-                    System.out.println();
-                    System.out.println("Годовой и месячные отчёты не считаны. Выполнение операции не возможно");
-                    System.out.println("Считайте отчёты затем повторите операцию");
-                    System.out.println();
-                }else if (!isReadDataM) {
-                    System.out.println();
-                    System.out.println("Месячные отчёты не считаны. Выполнение операции не возможно");
-                    System.out.println("Считайте месячные отчёты затем повторите операцию");
-                    System.out.println();
-                }
-                else {
-                    System.out.println();
-                    System.out.println("Годовой отчёт не считан. Выполнение операции не возможно");
-                    System.out.println("Считайте годовой отчёт затем повторите операцию");
-                    System.out.println();
-                }
-
-                break;
-            case 4:
-                if (isReadDataM){
-                    monthlyReport.getMaxIncomes();
-                    monthlyReport.getMaxExpenses();
-                    for (int i=0; i<monthlyReport.monthNames.length; i++) {
-                        System.out.println();
-                        System.out.println("Отчёт за " + monthlyReport.monthNames[i]);
-                        System.out.println("Самый прибыльный товар: " + monthlyReport.itemMaxIncomes[i] + "; сумма = " + monthlyReport.maxIncomes[i]);
-                        System.out.println("Самая большая трата: " + monthlyReport.itemMaxExpenses[i] + "; сумма = " + monthlyReport.maxExpenses[i]);
-                    }
-                    System.out.println();
-                }else {
-                    System.out.println();
-                    System.out.println("Месячные отчёты не считаны. Выполнение операции не возможно");
-                    System.out.println("Считайте месячные отчёты затем повторите операцию");
-                    System.out.println();
-                }
-                break;
-            case 5:
-                if (isReadDataY) {
-                    yearlyReport.getProfits();
-                    yearlyReport.getAverageIncome();
-                    yearlyReport.getAverageExpense();
-                    System.out.println();
-                    System.out.println("Отчёт за 2021г");
-                    for (int i=0; i<monthlyReport.monthNames.length; i++) {
-                        System.out.println("Прибыль за " + monthlyReport.monthNames[i] + ": " + yearlyReport.profits[i]);
-                    }
-                    System.out.println("Средний расход за все месяцы в году: " + yearlyReport.averageExpense);
-                    System.out.println("Средний доход за все месяцы в году: " + yearlyReport.averageIncome);
-                    System.out.println();
-                }else {
-                    System.out.println();
-                    System.out.println("Годовой отчёт не считан. Выполнение операции не возможно");
-                    System.out.println("Считайте годовой отчёт затем повторите операцию");
-                    System.out.println();
-                }
-                break;
-            case 6:
-                System.out.println();
-                System.out.println("Введено значение в неправильном формате");
-                System.out.println();
-                break;
-            default:
-                System.out.println();
-                System.out.println("Команда с таким номером отсутствует");
-                System.out.println();
-                break;
-        }
-        return out;
     }
 }
