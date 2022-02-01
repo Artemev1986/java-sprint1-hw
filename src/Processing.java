@@ -5,10 +5,17 @@ import java.nio.file.Paths;
 
 //Класс логики обработки данных
 public class Processing {
-    MonthlyReport monthlyReport = new MonthlyReport();
+    MonthlyReport[] monthlyReport;
     YearlyReport yearlyReport = new YearlyReport();
     boolean isReadDataM = false;
     boolean isReadDataY = false;
+    String[] monthNames = new String[]{"январь", "февраль", "март"};
+    public Processing(){
+        monthlyReport= new MonthlyReport[3];
+        for (int i=0;i<monthlyReport.length;i++)
+            monthlyReport[i] = new MonthlyReport();
+    }
+
 
     //Получение пути в папку resources
     public Path getResourcesPath(){
@@ -18,49 +25,54 @@ public class Processing {
         return  Paths.get(filePath.toString(),"resources");
     }
 
-    //Считывание месячных отчётов
-    public boolean readDataM(MonthlyReport monthlyReport){
-
-        for (int i=0; i<3; i++) {
-            monthlyReport.incomes[i].clear();
-            monthlyReport.expenses[i].clear();
+    //Считывание месячного отчёта
+    public boolean readDataM(MonthlyReport monthlyReport, int i){
+            monthlyReport.incomes.clear();
+            monthlyReport.expenses.clear();
             Path filePath = Paths.get(getResourcesPath().toString(), "m.20210" + (i + 1) + ".csv");
             try {
                 String fileContents = Files.readString(filePath);
                 String[] lines = fileContents.split("\\n");
                 for (int j = 1; j < lines.length; j++) {
                     String[] lineContents = lines[j].split(",");
-                    MonthlyReport.ReportM reportM = new MonthlyReport.ReportM();
+                    ReportM reportM = new ReportM();
                     reportM.item = lineContents[0];
                     reportM.quantity = Integer.parseInt(lineContents[2]);
                     reportM.price = Integer.parseInt(lineContents[3].trim());
                     if (Boolean.parseBoolean(lineContents[1]))
-                        monthlyReport.expenses[i].add(reportM);
+                        monthlyReport.expenses.add(reportM);
                     else
-                        monthlyReport.incomes[i].add(reportM);
+                        monthlyReport.incomes.add(reportM);
                 }
             } catch (IOException e) {
                 System.out.println("Невозможно прочитать файл с месячным отчётом. Возможно, файл не находится в нужной директории.");
                 return false;
             }
-        }
         return true;
     }
 
     //Считывание годового отчёта
     public boolean readDataY(YearlyReport yearlyReport){
-        yearlyReport.reportY.income.clear();
-        yearlyReport.reportY.expense.clear();
+        yearlyReport.reportY.clear();
         Path filePath = Paths.get(getResourcesPath().toString(),"y.2021.csv");
+        int expense = 0;
+        int income = 0;
         try {
             String fileContents = Files.readString(filePath);
             String[] lines = fileContents.split("\\n");
             for (int j = 1; j < lines.length; j++) {
                 String[] lineContents = lines[j].split(",");
                 if (Boolean.parseBoolean(lineContents[2].trim()))
-                    yearlyReport.reportY.expense.add(Integer.parseInt(lineContents[0]) - 1 , Integer.parseInt(lineContents[1]));
+                    expense = Integer.parseInt(lineContents[1]);
                 else
-                    yearlyReport.reportY.income.add(Integer.parseInt(lineContents[0]) - 1 , Integer.parseInt(lineContents[1]));
+                    income = Integer.parseInt(lineContents[1]);
+                if (j%2 == 0){
+                    ReportY reportBuf = new ReportY();
+                    reportBuf.income = income;
+                    reportBuf.expense = expense;
+                    reportBuf.month = Integer.parseInt(lineContents[0])-1;
+                    yearlyReport.reportY.add(reportBuf);
+                }
             }
         } catch (IOException e) {
             System.out.println("Невозможно прочитать файл с годовым отчётом. Возможно, файл не находится в нужной директории.");
@@ -70,18 +82,16 @@ public class Processing {
     }
 
     //Нахождение несоответствий суммы затрат и доходов между годовым и месяными отчётами
-    public boolean[] getMistakes(MonthlyReport monthlyReport, YearlyReport yearlyReport){
-        boolean[] mistakes = new boolean[3];
-        for (int i=0;i<3;i++) {
-            mistakes[i] = monthlyReport.getSumExpenses()[i] != yearlyReport.reportY.expense.get(i) ||
-                    monthlyReport.getSumIncomes()[i] != yearlyReport.reportY.income.get(i);
-        }
-        return mistakes;
+    public boolean getMistake(int i){
+        return  monthlyReport[i].getSumExpenses() != yearlyReport.reportY.get(i).expense ||
+                    monthlyReport[i].getSumIncomes() != yearlyReport.reportY.get(i).income;
     }
 
     //Печать результата считывания месячных отчётов
     public void printReadReportM(){
-        isReadDataM = readDataM(monthlyReport);
+        isReadDataM = true;
+        for (int i=0;i<monthlyReport.length;i++)
+        isReadDataM &= readDataM(monthlyReport[i], i);
         if (isReadDataM){
             System.out.println();
             System.out.println("Все месячные отчёты успешно считаны");
@@ -102,10 +112,10 @@ public class Processing {
     //Печать результата сравнения месячных и годового отчётов
     public void printCompareReports(){
         if (isReadDataM && isReadDataY){
-            for (int i=0; i<monthlyReport.monthNames.length; i++) {
-                if (getMistakes(monthlyReport,yearlyReport)[i]) {
+            for (int i=0; i<monthlyReport.length; i++) {
+                if (getMistake(i)) {
                     System.out.println();
-                    System.out.println("Обнаружена ошибка в месяце \"" + monthlyReport.monthNames[i]+"\"");
+                    System.out.println("Обнаружена ошибка в месяце \"" + monthNames[i]+"\"");
                 }
             }
             System.out.println();
@@ -133,11 +143,13 @@ public class Processing {
     //Печать результата обработки месячных отчётов
     public void printMonthReports(){
         if (isReadDataM){
-            for (int i=0; i<monthlyReport.monthNames.length; i++) {
+            for (int i=0; i<monthNames.length; i++) {
                 System.out.println();
-                System.out.println("Отчёт за " + monthlyReport.monthNames[i]);
-                System.out.println("Самый прибыльный товар: " + monthlyReport.getMaxIncomes()[i].item + "; сумма = " + monthlyReport.getMaxIncomes()[i].max);
-                System.out.println("Самая большая трата: " + monthlyReport.getMaxExpenses()[i].item + "; сумма = " + monthlyReport.getMaxExpenses()[i].max);
+                System.out.println("Отчёт за " + monthNames[i]);
+                int ind = monthlyReport[i].getMaxIncomes();
+                System.out.println("Самый прибыльный товар: " + monthlyReport[i].incomes.get(ind).item + "; сумма = " + monthlyReport[i].incomes.get(ind).getSum());
+                ind = monthlyReport[i].getMaxExpenses();
+                System.out.println("Самая большая трата: " + monthlyReport[i].expenses.get(ind).item + "; сумма = " + monthlyReport[i].expenses.get(ind).getSum());
             }
             System.out.println();
         }else {
@@ -153,8 +165,8 @@ public class Processing {
         System.out.println();
         if  (isReadDataY){
             System.out.println("Отчёт за 2021г");
-            for (int i=0; i<monthlyReport.monthNames.length; i++) {
-                System.out.println("Прибыль за " + monthlyReport.monthNames[i] + ": " + yearlyReport.getProfits()[i]);
+            for (int i=0; i<monthNames.length; i++) {
+                System.out.println("Прибыль за " + monthNames[i] + ": " + yearlyReport.reportY.get(i).getProfit());
             }
             System.out.println("Средний расход за все месяцы в году: " + yearlyReport.getAverageExpense());
             System.out.println("Средний доход за все месяцы в году: " + yearlyReport.getAverageIncome());

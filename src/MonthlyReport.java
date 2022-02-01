@@ -3,84 +3,53 @@ import java.util.ArrayList;
 //Класс отвечает за формирование месяных отчётов
 public class MonthlyReport {
 
-    ArrayList<ReportM>[] incomes; //список дходов
-    ArrayList<ReportM>[] expenses; //список затрат
-
-    String[] monthNames; // массив названий месяцев
+    ArrayList<ReportM> incomes; //список дходов
+    ArrayList<ReportM> expenses; //список затрат
 
     public MonthlyReport(){
-        incomes = new ArrayList[3];
-        for (int i = 0; i < incomes.length; i++)
-            incomes[i] = new ArrayList<>();
-
-        expenses = new ArrayList[3];
-        for (int i = 0; i < expenses.length; i++)
-            expenses[i] = new ArrayList<>();
-
-        monthNames = new String[]{"январь", "февраль", "март"};
-
-    }
-
-    public static class ReportM {
-        String item="";
-        int quantity=0;
-        int price=0;
-    }
-
-    public class MaxSum{
-        String item="";
-        int max=0;
+        incomes = new ArrayList<>();
+        expenses = new ArrayList<>();
     }
 
     //Получение суммы
-    public int[] getSum(ArrayList<ReportM>[] reports){
-        int[] sums = new int[3];
-        for (int i=0; i<reports.length; i++) {
+    public int getSumMonth(ArrayList<ReportM> reports){
             int sum = 0;
-            for (int j = 0; j < reports[i].size(); j++) {
-                sum += reports[i].get(j).quantity * reports[i].get(j).price;
-            }
-            sums[i] = sum;
-        }
-        return sums;
+            for (int j = 0; j < reports.size(); j++)
+                sum += reports.get(j).getSum();
+        return sum;
     }
 
     //Получение суммы дохода за месяц
-    public int[] getSumIncomes(){
-        return getSum(incomes);
+    public int getSumIncomes(){
+        return getSumMonth(incomes);
     }
 
     //Получение суммы затрат за месяц
-    public int[] getSumExpenses(){
-        return getSum(expenses);
+    public int getSumExpenses(){
+        return getSumMonth(expenses);
     }
 
-    public MaxSum[] getMax(ArrayList<ReportM>[] reports){
-        MaxSum[] maxSum = new MaxSum[3];
-        for (int i = 0; i < maxSum.length; i++){
-            maxSum[i] = new MaxSum();
+    //Нахождение индекса максимального дохода или траты в месяце
+    public int getMax(ArrayList<ReportM> reports){
             int max = 0;
-            String item = "";
-            for (int j = 0; j < reports[i].size(); j++) {
-                int sum = reports[i].get(j).quantity * reports[i].get(j).price;
+            int ind = 0;
+            for (int j = 0; j < reports.size(); j++) {
+                int sum = reports.get(j).getSum();
                 if (max < sum) {
                     max = sum;
-                    item = reports[i].get(j).item;
+                    ind = j;
                 }
             }
-            maxSum[i].item = item;
-            maxSum[i].max = max;
-        }
-        return maxSum;
+        return ind;
     }
 
-    //Нахождение максимального дохода и наименование соответствующего товара в месяце
-    public MaxSum[] getMaxIncomes(){
+    //Нахождение индекса максимального дохода в месяце
+    public int getMaxIncomes(){
         return getMax(incomes);
     }
 
-    //Нахождение максимальной траты и наименование соответствующего товара в месяце
-    public MaxSum[] getMaxExpenses(){
+    //Нахождение индекса максимальной траты в месяце
+    public int getMaxExpenses(){
         return getMax(expenses);
     }
 }

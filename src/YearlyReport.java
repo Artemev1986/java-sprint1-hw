@@ -2,45 +2,27 @@ import java.util.ArrayList;
 
 //Класс отвечает за формирование годового отчёта
 public class YearlyReport {
-    ReportY reportY;
+    ArrayList<ReportY> reportY;
 
-    public  YearlyReport(){
-        reportY = new ReportY();
-    }
-
-    public static class ReportY {
-        ArrayList<Integer> income;
-        ArrayList<Integer> expense;
-        public ReportY(){
-            income = new ArrayList<>();
-            expense = new ArrayList<>();
-        }
-    }
-
-    //Нахождение прибыли за каждый месяц
-    public int[] getProfits(){
-        int[] profits = new int[3];
-        for (int i = 0; i < reportY.income.size(); i++){
-            profits[i] = reportY.income.get(i) - reportY.expense.get(i);
-        }
-        return profits;
-    }
-
-    public int getAverage(ArrayList<Integer> reports){
-        int averageSum = 0;
-        for (int sum : reports){
-            averageSum += sum;
-        }
-        return averageSum / reports.size();
+    public YearlyReport() {
+        reportY = new ArrayList<>();
     }
 
     //Получение среднего значения дохода за год
-    public int getAverageIncome(){
-        return getAverage(reportY.income);
+    public int getAverageIncome() {
+        int averageSumIncome = 0;
+        for (int i = 0; i < reportY.size(); i++) {
+            averageSumIncome += reportY.get(i).income;
+        }
+        return averageSumIncome / reportY.size();
     }
 
     //Получение среднего значения затрат за год
-    public int getAverageExpense(){
-        return getAverage(reportY.expense);
+    public int getAverageExpense() {
+        int averageSumExpense = 0;
+        for (int i = 0; i < reportY.size(); i++) {
+            averageSumExpense += reportY.get(i).expense;
+        }
+        return averageSumExpense / reportY.size();
     }
 }
