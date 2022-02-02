@@ -1,12 +1,7 @@
 public class ReportY {
-    int month;
-    int income;
-    int expense;
-    public ReportY(){
-        month = 0;
-        income = 0;
-        expense = 0;
-    }
+    int month = 0;
+    int income = 0;
+    int expense = 0;
 
     //Нахождение прибыли
     public int getProfit(){

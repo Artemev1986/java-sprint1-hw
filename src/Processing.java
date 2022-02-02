@@ -5,17 +5,11 @@ import java.nio.file.Paths;
 
 //Класс логики обработки данных
 public class Processing {
-    MonthlyReport[] monthlyReport;
-    YearlyReport yearlyReport = new YearlyReport();
+    MonthlyReport[] monthlyReport= new MonthlyReport[3];
+    YearlyReport yearlyReport;
     boolean isReadDataM = false;
     boolean isReadDataY = false;
     String[] monthNames = new String[]{"январь", "февраль", "март"};
-    public Processing(){
-        monthlyReport= new MonthlyReport[3];
-        for (int i=0;i<monthlyReport.length;i++)
-            monthlyReport[i] = new MonthlyReport();
-    }
-
 
     //Получение пути в папку resources
     public Path getResourcesPath(){
@@ -26,9 +20,8 @@ public class Processing {
     }
 
     //Считывание месячного отчёта
-    public boolean readDataM(MonthlyReport monthlyReport, int i){
-            monthlyReport.incomes.clear();
-            monthlyReport.expenses.clear();
+    public boolean readDataM(int i){
+            monthlyReport[i] = new MonthlyReport();
             Path filePath = Paths.get(getResourcesPath().toString(), "m.20210" + (i + 1) + ".csv");
             try {
                 String fileContents = Files.readString(filePath);
@@ -40,9 +33,9 @@ public class Processing {
                     reportM.quantity = Integer.parseInt(lineContents[2]);
                     reportM.price = Integer.parseInt(lineContents[3].trim());
                     if (Boolean.parseBoolean(lineContents[1]))
-                        monthlyReport.expenses.add(reportM);
+                        monthlyReport[i].expenses.add(reportM);
                     else
-                        monthlyReport.incomes.add(reportM);
+                        monthlyReport[i].incomes.add(reportM);
                 }
             } catch (IOException e) {
                 System.out.println("Невозможно прочитать файл с месячным отчётом. Возможно, файл не находится в нужной директории.");
@@ -52,8 +45,8 @@ public class Processing {
     }
 
     //Считывание годового отчёта
-    public boolean readDataY(YearlyReport yearlyReport){
-        yearlyReport.reportY.clear();
+    public boolean readDataY(){
+        yearlyReport = new YearlyReport();
         Path filePath = Paths.get(getResourcesPath().toString(),"y.2021.csv");
         int expense = 0;
         int income = 0;
@@ -91,7 +84,7 @@ public class Processing {
     public void printReadReportM(){
         isReadDataM = true;
         for (int i=0;i<monthlyReport.length;i++)
-        isReadDataM &= readDataM(monthlyReport[i], i);
+        isReadDataM &= readDataM(i);
         if (isReadDataM){
             System.out.println();
             System.out.println("Все месячные отчёты успешно считаны");
@@ -101,7 +94,7 @@ public class Processing {
 
     //Печать результата считывания годового отчёта
     public void printReadReportY(){
-        isReadDataY = readDataY(yearlyReport);
+        isReadDataY = readDataY();
         if (isReadDataY) {
             System.out.println();
             System.out.println("Годовой отчёт успешно считан");

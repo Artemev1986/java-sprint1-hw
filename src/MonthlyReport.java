@@ -3,19 +3,14 @@ import java.util.ArrayList;
 //Класс отвечает за формирование месяных отчётов
 public class MonthlyReport {
 
-    ArrayList<ReportM> incomes; //список дходов
-    ArrayList<ReportM> expenses; //список затрат
-
-    public MonthlyReport(){
-        incomes = new ArrayList<>();
-        expenses = new ArrayList<>();
-    }
+    ArrayList<ReportM> incomes = new ArrayList<>(); //список дходов
+    ArrayList<ReportM> expenses = new ArrayList<>(); //список затрат
 
     //Получение суммы
     public int getSumMonth(ArrayList<ReportM> reports){
             int sum = 0;
-            for (int j = 0; j < reports.size(); j++)
-                sum += reports.get(j).getSum();
+            for (ReportM reportM: reports)
+                sum += reportM.getSum();
         return sum;
     }
 
